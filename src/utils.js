@@ -17,7 +17,6 @@ function parseData(parse) {
   };
 }
 
-// const parseDate = timeParse("%Y-%m-%d");
 const parseDate = timeParse("%Y-%m-%dT%H:%M:%SZ");
 
 export function getData() {

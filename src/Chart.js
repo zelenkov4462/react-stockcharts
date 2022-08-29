@@ -19,10 +19,27 @@ import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
 import LineSeries from "react-stockcharts/lib/series/LineSeries";
 import StochasticSeries from "react-stockcharts/lib/series/StochasticSeries";
+import StochasticTooltip from "react-stockcharts/lib/tooltip/StochasticTooltip";
+import rsi from "react-stockcharts/lib/indicator/rsi";
 
 class MyChart extends React.Component {
   render() {
+    const height = 400;
     const { type, data: initialData, width, ratio } = this.props;
+
+    const margin = { left: 70, right: 70, top: 20, bottom: 30 };
+
+    const gridHeight = height - margin.top - margin.bottom;
+    const gridWidth = width - margin.left - margin.right;
+
+    const showGrid = true;
+    const yGrid = showGrid
+      ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.2 }
+      : {};
+    const xGrid = showGrid
+      ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 }
+      : {};
+
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (d) => d.time
     );
@@ -38,7 +55,7 @@ class MyChart extends React.Component {
         height={1200}
         ratio={ratio}
         width={width}
-        margin={{ left: 50, right: 70, top: 10, bottom: 30 }}
+        margin={{ left: 80, right: 80, top: 10, bottom: 30 }}
         type={type}
         seriesName="MSFT"
         data={data}
@@ -48,8 +65,22 @@ class MyChart extends React.Component {
         xExtents={xExtents}
       >
         <Chart id={1} height={400} yExtents={(d) => d.price}>
-          <YAxis axisAt="right" orient="right" ticks={5} />
-          <XAxis axisAt="bottom" orient="bottom" />
+          <YAxis
+            axisAt="right"
+            orient="right"
+            ticks={5}
+            {...yGrid}
+            inverted={true}
+            tickStroke="#000"
+          />
+          <XAxis
+            axisAt="bottom"
+            orient="bottom"
+            {...xGrid}
+            outerTickSize={0}
+            stroke="#000"
+            opacity={0.5}
+          />
           <MouseCoordinateY
             at="right"
             orient="right"
@@ -74,17 +105,27 @@ class MyChart extends React.Component {
           yExtents={(d) => [d.rsi, d.mas, d.mal]}
         >
           <XAxis axisAt="bottom" orient="bottom" />
-          <YAxis axisAt="right" orient="right" tickFormat={format(".2s")} />
+          <YAxis
+            axisAt="right"
+            orient="right"
+            tickFormat={format(".2s")}
+            ticks={5}
+            {...yGrid}
+          />
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
             displayFormat={timeFormat("%Y-%m-%d")}
+            outerTickSize={0}
+            stroke="#000"
+            opacity={0.5}
           />
 
           <MouseCoordinateY
             at="right"
             orient="right"
             displayFormat={format(".2f")}
+            tickStroke="#000"
           />
 
           <LineSeries
@@ -109,8 +150,8 @@ class MyChart extends React.Component {
           height={150}
           yExtents={(d) => d.mfi}
         >
-          <XAxis axisAt="bottom" orient="bottom" />
-          <YAxis axisAt="right" orient="right" />
+          <XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+          <YAxis axisAt="right" orient="right" {...yGrid} ticks={5} />
 
           <MouseCoordinateX
             at="bottom"
@@ -136,12 +177,13 @@ class MyChart extends React.Component {
           height={150}
           yExtents={(d) => [d.wt1, d.wt2]}
         >
-          <XAxis axisAt="bottom" orient="bottom" />
+          <XAxis axisAt="bottom" orient="bottom" {...xGrid} />
           <YAxis
             axisAt="right"
             orient="right"
             ticks={5}
             tickFormat={format(".2s")}
+            {...yGrid}
           />
           <MouseCoordinateX
             at="bottom"
@@ -164,7 +206,6 @@ class MyChart extends React.Component {
             stroke="#006400"
             strokeDasharray="line"
           />
-          <StochasticSeries yAccessor={(d) => [d.wt1, d.wt2]} />
         </Chart>
         <CrossHairCursor />
       </ChartCanvas>
