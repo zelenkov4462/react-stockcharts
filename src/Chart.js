@@ -50,8 +50,6 @@ const MyChart = (props) => {
   console.log(props);
   console.log(mouseMoveEvent);
 
-  // const priceIn = data.data?.charts[100]?.price;
-  //
   const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
     (d) => d.time
   );
@@ -59,54 +57,43 @@ const MyChart = (props) => {
     xScaleProvider(initialData);
 
   const start = xAccessor(last(data));
-  const end = xAccessor(data[Math.max(0, data.length - 10)]);
+  const end = xAccessor(data[data.length - 100]);
   const xExtents = [start, end];
 
   return (
     <ChartCanvas
-      pointsPerPxThreshold={1}
-      mouseMoveEvent={mouseMoveEvent}
-      panEvent={panEvent}
-      zoomEvent={zoomEvent}
-      clamp={clamp}
-      zoomAnchor={zoomAnchor}
-      width={width}
-      // height={1100}
-      height={2000}
-      margin={{ left: 70, right: 70, top: 20, bottom: 30 }}
       seriesName="MSFT"
-      data={initialData}
-      type="svg"
-      // type={type}
-      xAccessor={(d) => d.time}
-      // xAccessor={xAccessor}
-      xScale={scaleTime()}
-      // xScale={xScale}
-      xExtents={[new Date(2022, 7, 3), new Date(2022, 7, 5)]}
-      // xExtents={xExtents}
+      xScale={xScale}
+      data={data}
       ratio={ratio}
+      height={1200}
+      width={width}
+      margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
+      type={type}
+      xAccessor={xAccessor}
       displayXAccessor={displayXAccessor}
+      xExtents={xExtents}
     >
       <Chart id={1} height={400} yExtents={(d) => d.price}>
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} showTicks={true} />
-        <YAxis axisAt="left" orient="left" />
+        <XAxis axisAt="bottom" orient="bottom" />
+        <YAxis axisAt="left" orient="left" ticks={5} />
         <MouseCoordinateY
           at="right"
           orient="right"
           displayFormat={format(".2f")}
         />
-        {/*<MouseCoordinateX*/}
-        {/*  at="bottom"*/}
-        {/*  orient="bottom"*/}
-        {/*  displayFormat={timeFormat("%Y-%m-%d")}*/}
-        {/*/>*/}
+        <MouseCoordinateX
+          at="bottom"
+          orient="bottom"
+          displayFormat={timeFormat("%Y-%m-%d")}
+        />
         <LineSeries
           yAccessor={(d) => d.price}
           stroke="#000"
           strokeDasharray="Split"
           strokeWidth={1}
         />
-        <OHLCTooltip forChart={1} origin={[150, 0]} />
+        {/*<OHLCTooltip forChart={1} origin={[150, 0]} />*/}
 
         {/*<ScatterSeries*/}
         {/*  yAccessor={(d) => d.price}*/}
@@ -117,22 +104,21 @@ const MyChart = (props) => {
       </Chart>
       <Chart
         id={2}
-        yExtents={(d) => [d.rsi, d.mas, d.mal]}
-        // origin={(w, h) => [0, h - 150]}
         origin={(w, h) => [0, 450]}
         height={150}
+        yExtents={(d) => [d.rsi, d.mas, d.mal]}
       >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} />
+        <XAxis axisAt="bottom" orient="bottom" />
         <YAxis axisAt="right" orient="right" tickFormat={format(".2s")} />
-        {/*<MouseCoordinateY*/}
-        {/*  at="left"*/}
-        {/*  orient="left"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
+        <MouseCoordinateX
+          at="bottom"
+          orient="bottom"
+          displayFormat={timeFormat("%Y-%m-%d")}
+        />
 
         <MouseCoordinateY
-          at="left"
-          orient="left"
+          at="right"
+          orient="right"
           displayFormat={format(".2f")}
         />
 
@@ -154,24 +140,24 @@ const MyChart = (props) => {
       </Chart>
       <Chart
         id={3}
+        origin={(w, h) => [0, 650]}
         height={150}
         yExtents={(d) => d.mfi}
-        origin={(w, h) => [0, 650]}
       >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} />
+        <XAxis axisAt="bottom" orient="bottom" />
         <YAxis axisAt="left" orient="left" />
+
+        <MouseCoordinateX
+          at="bottom"
+          orient="bottom"
+          displayFormat={timeFormat("%Y-%m-%d")}
+        />
 
         <MouseCoordinateY
           at="right"
           orient="right"
           displayFormat={format(".2f")}
         />
-
-        {/*<MouseCoordinateY*/}
-        {/*  at="right"*/}
-        {/*  orient="right"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
         <LineSeries
           yAccessor={(d) => d.mfi}
           stroke="#008000"
@@ -181,34 +167,26 @@ const MyChart = (props) => {
       </Chart>
       <Chart
         id={4}
-        yExtents={(d) => [d.wt1, d.wt2]}
         origin={(w, h) => [0, 850]}
         height={150}
+        yExtents={(d) => [d.wt1, d.wt2]}
       >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} showTicks={true} />
-        <YAxis axisAt="right" orient="right" tickFormat={format(".2s")} />
-
-        <MouseCoordinateY
-          at="right"
+        <XAxis axisAt="bottom" orient="bottom" />
+        <YAxis
+          axisAt="right"
           orient="right"
-          displayFormat={format(".2f")}
+          ticks={5}
+          tickFormat={format(".2s")}
         />
-
-        {/*<MouseCoordinateX*/}
-        {/*  at="bottom"*/}
-        {/*  orient="bottom"*/}
-        {/*  displayFormat={timeFormat("%Y-%m-%d")}*/}
-        {/*/>*/}
-        {/*<MouseCoordinateY*/}
-        {/*  at="right"*/}
-        {/*  orient="right"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
-
         <MouseCoordinateX
           at="bottom"
           orient="bottom"
           displayFormat={timeFormat("%Y-%m-%d")}
+        />
+        <MouseCoordinateY
+          at="right"
+          orient="right"
+          displayFormat={format(".2f")}
         />
 
         <LineSeries
