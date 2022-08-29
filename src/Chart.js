@@ -62,17 +62,34 @@ const MyChart = (props) => {
 
   return (
     <ChartCanvas
-      seriesName="MSFT"
-      xScale={xScale}
-      data={data}
-      ratio={ratio}
-      height={1200}
+      // seriesName="MSFT"
+      // xScale={xScale}
+      // data={data}
+      // ratio={ratio}
+      // height={1200}
+      // width={width}
+      // margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
+      // type={type}
+      // xAccessor={xAccessor}
+      // displayXAccessor={displayXAccessor}
+      // xExtents={xExtents}
+
+      pointsPerPxThreshold={1}
       width={width}
-      margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
-      type={type}
-      xAccessor={xAccessor}
+      height={2000}
+      margin={{ left: 70, right: 70, top: 20, bottom: 30 }}
+      seriesName="MSFT"
+      data={initialData}
+      // type={type}
+      type="svg"
+      xAccessor={(d) => d.time}
+      // xAccessor={xAccessor}
+      xScale={scaleTime()}
+      // xScale={xScale}
+      xExtents={[new Date(2022, 7, 3), new Date(2022, 7, 5)]}
+      // xExtents={xExtents}
+      ratio={ratio}
       displayXAccessor={displayXAccessor}
-      xExtents={xExtents}
     >
       <Chart id={1} height={400} yExtents={(d) => d.price}>
         <XAxis axisAt="bottom" orient="bottom" />
@@ -221,7 +238,8 @@ MyChart.propTypes = {
 };
 
 MyChart.defaultProps = {
-  type: "svg",
+  // type: "svg",
+  type: "hybrid",
   mouseMoveEvent: true,
   panEvent: true,
   zoomEvent: true,
