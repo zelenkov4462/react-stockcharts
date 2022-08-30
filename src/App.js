@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import displayValuesFor from "react-stockcharts/lib/tooltip/displayValuesFor";
 import { TypeChooser } from "react-stockcharts/lib/helper";
 import Chart from "./Chart";
-import { getData } from "./utils";
+import { getAmazonSimple, getAmazonStock, getData } from "./utils";
 
 function App() {
   const [charts, setCharts] = useState(null);
@@ -19,14 +19,15 @@ function App() {
   // }, []);
 
   useEffect(() => {
-    getData().then((data) => {
-      setCharts(data);
+    getData().then((d) => {
+      console.log(d);
+      setCharts(d);
     });
   }, []);
-
+  //
   // useEffect(() => {
-  //   console.log(charts);
-  // }, [charts]);
+  //   console.log(chartsMany);
+  // }, [chartsMany]);
 
   return (
     <div>

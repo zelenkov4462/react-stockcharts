@@ -47,8 +47,8 @@ import EventCapture from "react-stockcharts/lib/EventCapture";
 const MyChart = (props) => {
   const { type, data: initialData, width, ratio } = props;
   const { mouseMoveEvent, panEvent, zoomEvent, clamp, zoomAnchor } = props;
-  console.log(props);
-  console.log(mouseMoveEvent);
+  // console.log(props);
+  // console.log(mouseMoveEvent);
 
   // const priceIn = data.data?.charts[100]?.price;
   //
