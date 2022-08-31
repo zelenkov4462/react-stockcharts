@@ -21,6 +21,10 @@ import LineSeries from "react-stockcharts/lib/series/LineSeries";
 import StochasticSeries from "react-stockcharts/lib/series/StochasticSeries";
 import StochasticTooltip from "react-stockcharts/lib/tooltip/StochasticTooltip";
 import rsi from "react-stockcharts/lib/indicator/rsi";
+import OHLCTooltip from "react-stockcharts/lib/tooltip/OHLCTooltip";
+import ToolTipTSpanLabel from "react-stockcharts/lib/tooltip/ToolTipTSpanLabel";
+import ToolTipText from "react-stockcharts/lib/tooltip/ToolTipText";
+import MyOHLCTooltip from "./components/CustumOHLCTooltip";
 
 class MyChart extends React.Component {
   render() {
@@ -55,7 +59,7 @@ class MyChart extends React.Component {
         height={1200}
         ratio={ratio}
         width={width}
-        margin={{ left: 80, right: 80, top: 10, bottom: 30 }}
+        margin={{ left: 80, right: 80, top: 50, bottom: 30 }}
         type={type}
         seriesName="MSFT"
         data={data}
@@ -97,6 +101,8 @@ class MyChart extends React.Component {
             strokeDasharray="Split"
             strokeWidth={1}
           />
+          {/*<OHLCTooltip origin={[-40, 0]} />*/}
+          <MyOHLCTooltip origin={[-40, -20]} />
         </Chart>
         <Chart
           id={2}
@@ -104,7 +110,7 @@ class MyChart extends React.Component {
           height={150}
           yExtents={(d) => [d.rsi, d.mas, d.mal]}
         >
-          <XAxis axisAt="bottom" orient="bottom" />
+          <XAxis axisAt="bottom" orient="bottom" showTicks={false} />
           <YAxis
             axisAt="right"
             orient="right"
@@ -143,6 +149,7 @@ class MyChart extends React.Component {
             stroke="#FFFF00"
             strokeDasharray="line"
           />
+          <MyOHLCTooltip origin={[-40, -20]} />
         </Chart>
         <Chart
           id={3}
@@ -150,13 +157,14 @@ class MyChart extends React.Component {
           height={150}
           yExtents={(d) => d.mfi}
         >
-          <XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+          <XAxis axisAt="bottom" orient="bottom" {...xGrid} showTicks={false} />
           <YAxis axisAt="right" orient="right" {...yGrid} ticks={5} />
 
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
             displayFormat={timeFormat("%Y-%m-%d")}
+            opacity={0.5}
           />
 
           <MouseCoordinateY
@@ -170,6 +178,7 @@ class MyChart extends React.Component {
             strokeDasharray="Split"
             strokeWidth={1}
           />
+          <MyOHLCTooltip origin={[-40, -10]} />
         </Chart>
         <Chart
           id={4}
@@ -189,6 +198,7 @@ class MyChart extends React.Component {
             at="bottom"
             orient="bottom"
             displayFormat={timeFormat("%Y-%m-%d")}
+            opacity={0.5}
           />
           <MouseCoordinateY
             at="right"
@@ -206,6 +216,7 @@ class MyChart extends React.Component {
             stroke="#006400"
             strokeDasharray="line"
           />
+          <MyOHLCTooltip origin={[-40, -20]} />
         </Chart>
         <CrossHairCursor />
       </ChartCanvas>
