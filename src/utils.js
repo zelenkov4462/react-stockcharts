@@ -1,7 +1,6 @@
 import { tsvParse, csvParse, autoType } from "d3-dsv";
 import { timeFormat, timeParse } from "d3-time-format";
 import axios from "axios";
-import * as d3 from "d3";
 
 function parseData(parse) {
   return function (d) {
