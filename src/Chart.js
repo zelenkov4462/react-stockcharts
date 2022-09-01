@@ -1,240 +1,229 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 import { format } from "d3-format";
-import { timeFormat } from "d3-time-format";
 
 import { ChartCanvas, Chart } from "react-stockcharts";
-import {
-  BarSeries,
-  BollingerSeries,
-  CandlestickSeries,
-  LineSeries,
-  StochasticSeries,
-  ScatterSeries,
-  CircleMarker,
-  SquareMarker,
-  TriangleMarker,
-} from "react-stockcharts/lib/series";
+import { BarSeries, CandlestickSeries } from "react-stockcharts/lib/series";
 import { XAxis, YAxis } from "react-stockcharts/lib/axes";
 import {
   CrossHairCursor,
-  EdgeIndicator,
-  CurrentCoordinate,
   MouseCoordinateX,
   MouseCoordinateY,
 } from "react-stockcharts/lib/coordinates";
 
+import { timeFormat } from "d3-time-format";
+
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
-import {
-  OHLCTooltip,
-  MovingAverageTooltip,
-  BollingerBandTooltip,
-  StochasticTooltip,
-  GroupTooltip,
-} from "react-stockcharts/lib/tooltip";
-import {
-  ema,
-  stochasticOscillator,
-  bollingerBand,
-} from "react-stockcharts/lib/indicator";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
-import { scaleTime } from "d3-scale";
-import AreaSeries from "react-stockcharts/lib/series/AreaSeries";
-import EventCapture from "react-stockcharts/lib/EventCapture";
+import LineSeries from "react-stockcharts/lib/series/LineSeries";
+import StochasticSeries from "react-stockcharts/lib/series/StochasticSeries";
+import StochasticTooltip from "react-stockcharts/lib/tooltip/StochasticTooltip";
+import rsi from "react-stockcharts/lib/indicator/rsi";
+import OHLCTooltip from "react-stockcharts/lib/tooltip/OHLCTooltip";
+import ToolTipTSpanLabel from "react-stockcharts/lib/tooltip/ToolTipTSpanLabel";
+import ToolTipText from "react-stockcharts/lib/tooltip/ToolTipText";
+import MyOHLCTooltip from "./components/CustumOHLCTooltip";
 
-const MyChart = (props) => {
-  const { type, data: initialData, width, ratio } = props;
-  const { mouseMoveEvent, panEvent, zoomEvent, clamp, zoomAnchor } = props;
-  // console.log(props);
-  // console.log(mouseMoveEvent);
+class MyChart extends React.Component {
+  render() {
+    const height = 400;
+    const { type, data: initialData, width, ratio } = this.props;
 
-  // const priceIn = data.data?.charts[100]?.price;
-  //
-  const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
-    (d) => d.time
-  );
-  const { data, xScale, xAccessor, displayXAccessor } =
-    xScaleProvider(initialData);
+    const margin = { left: 70, right: 70, top: 20, bottom: 30 };
 
-  const start = xAccessor(last(data));
-  const end = xAccessor(data[Math.max(0, data.length - 10)]);
-  const xExtents = [start, end];
+    const gridHeight = height - margin.top - margin.bottom;
+    const gridWidth = width - margin.left - margin.right;
 
-  return (
-    <ChartCanvas
-      pointsPerPxThreshold={1}
-      mouseMoveEvent={mouseMoveEvent}
-      panEvent={panEvent}
-      zoomEvent={zoomEvent}
-      clamp={clamp}
-      zoomAnchor={zoomAnchor}
-      width={width}
-      // height={1100}
-      height={2000}
-      margin={{ left: 70, right: 70, top: 20, bottom: 30 }}
-      seriesName="MSFT"
-      data={initialData}
-      type="svg"
-      // type={type}
-      xAccessor={(d) => d.time}
-      // xAccessor={xAccessor}
-      xScale={scaleTime()}
-      // xScale={xScale}
-      xExtents={[new Date(2022, 7, 3), new Date(2022, 7, 5)]}
-      // xExtents={xExtents}
-      ratio={ratio}
-      displayXAccessor={displayXAccessor}
-    >
-      <Chart id={1} height={400} yExtents={(d) => d.price}>
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} showTicks={true} />
-        <YAxis axisAt="left" orient="left" />
-        <MouseCoordinateY
-          at="right"
-          orient="right"
-          displayFormat={format(".2f")}
-        />
-        {/*<MouseCoordinateX*/}
-        {/*  at="bottom"*/}
-        {/*  orient="bottom"*/}
-        {/*  displayFormat={timeFormat("%Y-%m-%d")}*/}
-        {/*/>*/}
-        <LineSeries
-          yAccessor={(d) => d.price}
-          stroke="#000"
-          strokeDasharray="Split"
-          strokeWidth={1}
-        />
-        <OHLCTooltip forChart={1} origin={[150, 0]} />
+    const showGrid = true;
+    const yGrid = showGrid
+      ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.2 }
+      : {};
+    const xGrid = showGrid
+      ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 }
+      : {};
 
-        {/*<ScatterSeries*/}
-        {/*  yAccessor={(d) => d.price}*/}
-        {/*  marker={CircleMarker}*/}
-        {/*  markerProps={{ width: 2, stroke: "#ff7f0e", fill: "#ff7f0e" }}*/}
-        {/*  markerProps={{ r: 3 }}*/}
-        {/*/>*/}
-      </Chart>
-      <Chart
-        id={2}
-        yExtents={(d) => [d.rsi, d.mas, d.mal]}
-        // origin={(w, h) => [0, h - 150]}
-        origin={(w, h) => [0, 450]}
-        height={150}
+    const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
+      (d) => d.time
+    );
+    const { data, xScale, xAccessor, displayXAccessor } =
+      xScaleProvider(initialData);
+
+    const start = xAccessor(last(data));
+    const end = xAccessor(data[Math.max(0, data.length - 100)]);
+    const xExtents = [start, end];
+
+    return (
+      <ChartCanvas
+        height={1200}
+        ratio={ratio}
+        width={width}
+        margin={{ left: 80, right: 80, top: 50, bottom: 30 }}
+        type={type}
+        seriesName="MSFT"
+        data={data}
+        xScale={xScale}
+        xAccessor={xAccessor}
+        displayXAccessor={displayXAccessor}
+        xExtents={xExtents}
+
       >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} />
-        <YAxis axisAt="right" orient="right" tickFormat={format(".2s")} />
-        {/*<MouseCoordinateY*/}
-        {/*  at="left"*/}
-        {/*  orient="left"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
+        <Chart id={1} height={400} yExtents={(d) => d.price}>
+          <YAxis
+            axisAt="right"
+            orient="right"
+            ticks={5}
+            {...yGrid}
+            inverted={true}
+            tickStroke="#000"
+          />
+          <XAxis
+            axisAt="bottom"
+            orient="bottom"
+            {...xGrid}
+            outerTickSize={0}
+            stroke="#000"
+            opacity={0.5}
+          />
+          <MouseCoordinateY
+            at="right"
+            orient="right"
+            displayFormat={format(".2f")}
+          />
+          <MouseCoordinateX
+            at="bottom"
+            orient="bottom"
+            displayFormat={timeFormat("%Y-%m-%d")}
+          />
+          <LineSeries
+            yAccessor={(d) => d.price}
+            stroke="#000"
+            strokeDasharray="Split"
+            strokeWidth={1}
+          />
+          {/*<OHLCTooltip origin={[-40, 0]} />*/}
+          <MyOHLCTooltip origin={[-40, -20]} />
+        </Chart>
+        <Chart
+          id={2}
+          origin={(w, h) => [0, 450]}
+          height={150}
+          yExtents={(d) => [d.rsi, d.mas, d.mal]}
+        >
+          <XAxis axisAt="bottom" orient="bottom" showTicks={false} />
+          <YAxis
+            axisAt="right"
+            orient="right"
+            tickFormat={format(".2s")}
+            ticks={5}
+            {...yGrid}
+          />
+          <MouseCoordinateX
+            at="bottom"
+            orient="bottom"
+            displayFormat={timeFormat("%Y-%m-%d")}
+            outerTickSize={0}
+            stroke="#000"
+            opacity={0.5}
+          />
 
-        <MouseCoordinateY
-          at="left"
-          orient="left"
-          displayFormat={format(".2f")}
-        />
+          <MouseCoordinateY
+            at="right"
+            orient="right"
+            displayFormat={format(".2f")}
+            tickStroke="#000"
+          />
 
-        <LineSeries
-          yAccessor={(d) => d.rsi}
-          stroke="#008B8B"
-          strokeDasharray="line"
-        />
-        <LineSeries
-          yAccessor={(d) => d.mas}
-          stroke="#8B008B"
-          strokeDasharray="line"
-        />
-        <LineSeries
-          yAccessor={(d) => d.mal}
-          stroke="#FFFF00"
-          strokeDasharray="line"
-        />
-      </Chart>
-      <Chart
-        id={3}
-        height={150}
-        yExtents={(d) => d.mfi}
-        origin={(w, h) => [0, 650]}
-      >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} />
-        <YAxis axisAt="left" orient="left" />
+          <LineSeries
+            yAccessor={(d) => d.rsi}
+            stroke="#008B8B"
+            strokeDasharray="line"
+          />
+          <LineSeries
+            yAccessor={(d) => d.mas}
+            stroke="#8B008B"
+            strokeDasharray="line"
+          />
+          <LineSeries
+            yAccessor={(d) => d.mal}
+            stroke="#FFFF00"
+            strokeDasharray="line"
+          />
+          <MyOHLCTooltip origin={[-40, -20]} />
+        </Chart>
+        <Chart
+          id={3}
+          origin={(w, h) => [0, 650]}
+          height={150}
+          yExtents={(d) => d.mfi}
+        >
+          <XAxis axisAt="bottom" orient="bottom" {...xGrid} showTicks={false} />
+          <YAxis axisAt="right" orient="right" {...yGrid} ticks={5} />
 
-        <MouseCoordinateY
-          at="right"
-          orient="right"
-          displayFormat={format(".2f")}
-        />
+          <MouseCoordinateX
+            at="bottom"
+            orient="bottom"
+            displayFormat={timeFormat("%Y-%m-%d")}
+            opacity={0.5}
+          />
 
-        {/*<MouseCoordinateY*/}
-        {/*  at="right"*/}
-        {/*  orient="right"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
-        <LineSeries
-          yAccessor={(d) => d.mfi}
-          stroke="#008000"
-          strokeDasharray="Split"
-          strokeWidth={1}
-        />
-      </Chart>
-      <Chart
-        id={4}
-        yExtents={(d) => [d.wt1, d.wt2]}
-        origin={(w, h) => [0, 850]}
-        height={150}
-      >
-        <XAxis axisAt="bottom" orient="bottom" ticks={6} showTicks={true} />
-        <YAxis axisAt="right" orient="right" tickFormat={format(".2s")} />
+          <MouseCoordinateY
+            at="right"
+            orient="right"
+            displayFormat={format(".2f")}
+          />
+          <LineSeries
+            yAccessor={(d) => d.mfi}
+            stroke="#008000"
+            strokeDasharray="Split"
+            strokeWidth={1}
+          />
+          <MyOHLCTooltip origin={[-40, -10]} />
+        </Chart>
+        <Chart
+          id={4}
+          origin={(w, h) => [0, 850]}
+          height={150}
+          yExtents={(d) => [d.wt1, d.wt2]}
+        >
+          <XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+          <YAxis
+            axisAt="right"
+            orient="right"
+            ticks={5}
+            tickFormat={format(".2s")}
+            {...yGrid}
+          />
+          <MouseCoordinateX
+            at="bottom"
+            orient="bottom"
+            displayFormat={timeFormat("%Y-%m-%d")}
+            opacity={0.5}
+          />
+          <MouseCoordinateY
+            at="right"
+            orient="right"
+            displayFormat={format(".2f")}
+          />
 
-        <MouseCoordinateY
-          at="right"
-          orient="right"
-          displayFormat={format(".2f")}
-        />
-
-        {/*<MouseCoordinateX*/}
-        {/*  at="bottom"*/}
-        {/*  orient="bottom"*/}
-        {/*  displayFormat={timeFormat("%Y-%m-%d")}*/}
-        {/*/>*/}
-        {/*<MouseCoordinateY*/}
-        {/*  at="right"*/}
-        {/*  orient="right"*/}
-        {/*  displayFormat={format(".2f")}*/}
-        {/*/>*/}
-
-        <MouseCoordinateX
-          at="bottom"
-          orient="bottom"
-          displayFormat={timeFormat("%Y-%m-%d")}
-        />
-
-        <LineSeries
-          yAccessor={(d) => d.wt1}
-          stroke="#FF0000"
-          strokeDasharray="line"
-        />
-        <LineSeries
-          yAccessor={(d) => d.wt2}
-          stroke="#006400"
-          strokeDasharray="line"
-        />
-        <StochasticSeries yAccessor={(d) => [d.wt1, d.wt2]} />
-        {/*<StochasticTooltip*/}
-        {/*// origin={[-38, 15]}*/}
-        {/*// yAccessor={(d) => [d.wt1, d.wt2]}*/}
-        {/*// options={wt1.options()}*/}
-        {/*// appearance={stoAppearance}*/}
-        {/*// label="wt1 wt2"*/}
-        {/*/>*/}
-      </Chart>
-      <CrossHairCursor />
-    </ChartCanvas>
-  );
-};
-
+          <LineSeries
+            yAccessor={(d) => d.wt1}
+            stroke="#FF0000"
+            strokeDasharray="line"
+          />
+          <LineSeries
+            yAccessor={(d) => d.wt2}
+            stroke="#006400"
+            strokeDasharray="line"
+          />
+          <MyOHLCTooltip origin={[-40, -20]} />
+        </Chart>
+        <CrossHairCursor />
+      </ChartCanvas>
+    );
+  }
+}
 MyChart.propTypes = {
   data: PropTypes.array.isRequired,
   width: PropTypes.number.isRequired,
@@ -244,58 +233,7 @@ MyChart.propTypes = {
 
 MyChart.defaultProps = {
   type: "svg",
-  mouseMoveEvent: true,
-  panEvent: true,
-  zoomEvent: true,
-  clamp: false,
-  width: window.innerWidth,
 };
-
-// MyChart = fitWidth(CandleStickChartWithZoomPan);
+MyChart = fitWidth(MyChart);
 
 export default MyChart;
-
-//
-// <ChartCanvas
-//   width={width}
-//   height={400}
-//   margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
-//   seriesName="MSFT"
-//   data={data}
-//   type="svg"
-//   xAccessor={(d) => d.time}
-//   xScale={scaleTime()}
-//   xExtents={[new Date(2022, 7, 3), new Date(2022, 7, 5)]}
-//   ratio={ratio}
-// >
-//   <Chart id={0} yExtents={(d) => d.price}>
-//     <XAxis axisAt="bottom" orient="bottom" ticks={6} />
-//     <YAxis axisAt="left" orient="left" />
-//     {/*<AreaSeries yAccessor={(d) => d.price} />*/}
-//     <LineSeries
-//       yAccessor={(d) => d.price}
-//       stroke="#000"
-//       strokeDasharray="line"
-//     />
-//     <ScatterSeries
-//       yAccessor={(d) => d.price}
-//       marker={SquareMarker}
-//       markerProps={{ width: 2, stroke: "#ff7f0e", fill: "#ff7f0e" }}
-//     />
-//   </Chart>
-//   <Chart id={1} yExtents={(d) => d.mas}>
-//     <XAxis axisAt="bottom" orient="bottom" ticks={6} />
-//     <YAxis axisAt="right" orient="right" />
-//     {/*<AreaSeries yAccessor={(d) => d.price} />*/}
-//     <LineSeries
-//       yAccessor={(d) => d.mas}
-//       stroke="#ff7f0e"
-//       strokeDasharray="line"
-//     />
-//     <ScatterSeries
-//       yAccessor={(d) => d.mas}
-//       marker={SquareMarker}
-//       markerProps={{ width: 0, stroke: "#ff7f0e", fill: "#ff7f0e" }}
-//     />
-//   </Chart>
-// </ChartCanvas>
