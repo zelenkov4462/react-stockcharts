@@ -1,4 +1,4 @@
-import { tsvParse, csvParse } from "d3-dsv";
+import { tsvParse, csvParse, autoType } from "d3-dsv";
 import { timeFormat, timeParse } from "d3-time-format";
 
 function parseData(parse) {
@@ -32,6 +32,7 @@ function convertData(jsonData) {
   for (let json of jsonData) {
     let item = new StockItem();
     item.time = parseDate(json.time);
+
     item.mal = json.mal;
     item.mas = json.mas;
     item.mfi = json.mfi;
@@ -46,6 +47,7 @@ function convertData(jsonData) {
 }
 
 export class StockItem {
+
   time;
   mal;
   mas;

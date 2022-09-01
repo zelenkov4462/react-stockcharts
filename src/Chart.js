@@ -67,6 +67,7 @@ class MyChart extends React.Component {
         xAccessor={xAccessor}
         displayXAccessor={displayXAccessor}
         xExtents={xExtents}
+
       >
         <Chart id={1} height={400} yExtents={(d) => d.price}>
           <YAxis
