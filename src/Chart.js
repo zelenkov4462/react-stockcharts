@@ -18,18 +18,23 @@ import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
 import LineSeries from "react-stockcharts/lib/series/LineSeries";
-import StochasticSeries from "react-stockcharts/lib/series/StochasticSeries";
-import StochasticTooltip from "react-stockcharts/lib/tooltip/StochasticTooltip";
-import rsi from "react-stockcharts/lib/indicator/rsi";
-import OHLCTooltip from "react-stockcharts/lib/tooltip/OHLCTooltip";
-import ToolTipTSpanLabel from "react-stockcharts/lib/tooltip/ToolTipTSpanLabel";
-import ToolTipText from "react-stockcharts/lib/tooltip/ToolTipText";
 import MyOHLCTooltip from "./components/CustumOHLCTooltip";
+import {
+  LabelAnnotation,
+  Label,
+  Annotate,
+  buyPath,
+} from "react-stockcharts/lib/annotation";
+import AreaSeries from "react-stockcharts/lib/series/AreaSeries";
 
 class MyChart extends React.Component {
   render() {
-    const height = 400;
+    const height = 1050;
     const { type, data: initialData, width, ratio } = this.props;
+
+    const { timeFrame } = this.props;
+    console.log(this.props);
+    console.log(initialData[0]);
 
     const margin = { left: 70, right: 70, top: 20, bottom: 30 };
 
@@ -47,19 +52,36 @@ class MyChart extends React.Component {
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (d) => d.time
     );
-    const { data, xScale, xAccessor, displayXAccessor } =
-      xScaleProvider(initialData);
+    const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
+      initialData[0]
+    );
 
     const start = xAccessor(last(data));
     const end = xAccessor(data[Math.max(0, data.length - 100)]);
     const xExtents = [start, end];
+
+    const defaultAnnotationProps = {
+      // fontFamily: "Glyphicons Halflings",
+      // fontSize: 20,
+      // opacity: 0.8,
+      onClick: console.log.bind(console),
+    };
+
+    const longAnnotationProps = {
+      ...defaultAnnotationProps,
+      fill: "#000",
+      text: "\ue093",
+      path: buyPath,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      tooltip: "Go long",
+    };
 
     return (
       <ChartCanvas
         height={1200}
         ratio={ratio}
         width={width}
-        margin={{ left: 80, right: 80, top: 50, bottom: 30 }}
+        margin={{ left: 80, right: 80, top: 80, bottom: 30 }}
         type={type}
         seriesName="MSFT"
         data={data}
@@ -68,6 +90,12 @@ class MyChart extends React.Component {
         displayXAccessor={displayXAccessor}
         xExtents={xExtents}
       >
+        <Label
+          x={(width - margin.left - margin.right) / 2}
+          y={-10}
+          fontSize="30"
+          text={`TimeFrame: ${timeFrame}`}
+        />
         <Chart id={1} height={400} yExtents={(d) => d.price}>
           <YAxis
             axisAt="right"
@@ -80,7 +108,6 @@ class MyChart extends React.Component {
           <XAxis
             axisAt="bottom"
             orient="bottom"
-            {...xGrid}
             outerTickSize={0}
             stroke="#000"
             opacity={0.5}
@@ -101,8 +128,13 @@ class MyChart extends React.Component {
             strokeDasharray="Split"
             strokeWidth={1}
           />
-          {/*<OHLCTooltip origin={[-40, 0]} />*/}
-          <MyOHLCTooltip origin={[-40, -20]} />
+          <Annotate
+            with={LabelAnnotation}
+            // when={(d) => d.Side === "Long"}
+            when={(d) => d.price > 4.41}
+            usingProps={longAnnotationProps}
+          />
+          <MyOHLCTooltip origin={[-40, -60]} />
         </Chart>
         <Chart
           id={2}
@@ -149,6 +181,7 @@ class MyChart extends React.Component {
             stroke="#FFFF00"
             strokeDasharray="line"
           />
+
           <MyOHLCTooltip origin={[-40, -20]} />
         </Chart>
         <Chart
@@ -157,7 +190,7 @@ class MyChart extends React.Component {
           height={150}
           yExtents={(d) => d.mfi}
         >
-          <XAxis axisAt="bottom" orient="bottom" {...xGrid} showTicks={false} />
+          <XAxis axisAt="bottom" orient="bottom" showTicks={false} />
           <YAxis axisAt="right" orient="right" {...yGrid} ticks={5} />
 
           <MouseCoordinateX
