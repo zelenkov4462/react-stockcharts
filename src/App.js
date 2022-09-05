@@ -15,15 +15,16 @@ class App extends React.Component {
 
   componentDidMount() {
     getData().then((d) => {
+      // const stockData = convertData(d.data[0].charts, d.data[0].trade_dots);
       const stockData = convertData(d.data[0].charts);
       const timeFrame = d.data[0].timeframe;
-      const tradeDots = convertDots(d.data[0].trade_dots);
+      // const tradeDots = convertDots(d.data[0].trade_dots);
 
-      const allData = [stockData, tradeDots];
+      // const allData = [stockData, tradeDots];
 
-      // this.setState({ stockData });
+      this.setState({ stockData });
       // this.setState({ tradeDots });
-      this.setState({ allData });
+      // this.setState({ allData });
       this.setState({ timeFrame });
 
       // console.log(stockData);
@@ -39,8 +40,8 @@ class App extends React.Component {
         {(type) => (
           <Chart
             type={type}
-            // data={this.state.stockData}
-            data={this.state.allData}
+            data={this.state.stockData}
+            // data={this.state.allData}
             timeFrame={this.state.timeFrame}
             // tradeDots={this.state.tradeDots}
           />
