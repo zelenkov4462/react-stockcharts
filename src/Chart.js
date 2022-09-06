@@ -31,6 +31,13 @@ import {
 import AreaSeries from "react-stockcharts/lib/series/AreaSeries";
 import { ema } from "react-stockcharts/lib/indicator";
 import { scaleTime } from "d3-scale";
+import {
+  AlternatingFillAreaSeries,
+  StraightLine,
+} from "react-stockcharts/lib/series";
+import { saveInteractiveNodes, getInteractiveNodes } from "./interactiveUtils";
+import TrendLine from "react-stockcharts/lib/interactive/TrendLine";
+import { toObject } from "react-stockcharts/lib/utils";
 
 class MyChart extends React.Component {
   render() {
@@ -306,12 +313,17 @@ class MyChart extends React.Component {
             orient="right"
             displayFormat={format(".2f")}
           />
-          <LineSeries
+          {/*<LineSeries*/}
+          {/*  yAccessor={(stockItems) => stockItems.mfi}*/}
+          {/*  stroke="#008000"*/}
+          {/*  strokeDasharray="Split"*/}
+          {/*  strokeWidth={1}*/}
+          {/*/>*/}
+          <AlternatingFillAreaSeries
+            baseAt={0}
             yAccessor={(stockItems) => stockItems.mfi}
-            stroke="#008000"
-            strokeDasharray="Split"
-            strokeWidth={1}
           />
+          <StraightLine yValue={0} />
           <MyOHLCTooltip origin={[-40, -10]} />
         </Chart>
         <Chart

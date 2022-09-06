@@ -18,6 +18,8 @@ const MainPage = () => {
         "https://chart-template.herokuapp.com/simulation/123456"
       );
 
+      console.log(responseOptions);
+
       const options = responseOptions.data.data.slice(0, 5);
 
       setOptions(options);
