@@ -21,10 +21,7 @@ export async function getData() {
   let url = "https://chart-template.herokuapp.com/simulation/123456";
   let response = await fetch(url);
   let jsonData = await response.json();
-  console.log(jsonData);
   return jsonData;
-  // let stockData = convertData(jsonData.data[0].charts);
-  // return stockData;
 }
 
 export function convertData(jsonData, jsonDots) {

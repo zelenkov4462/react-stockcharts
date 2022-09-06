@@ -39,8 +39,7 @@ class MyChart extends React.Component {
 
     const { stockItems } = initialData;
 
-    const { timeFrame, tradeDots } = this.props;
-    console.log(initialData);
+    // const { timeFrame } = this.props;
 
     const margin = { left: 70, right: 70, top: 20, bottom: 30 };
 
@@ -55,21 +54,12 @@ class MyChart extends React.Component {
       ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 }
       : {};
 
-    // const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
-    //   (stockItems) => stockItems.time
-    // );
-
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
       (stockItems) => stockItems.time
-      // stockItemsDots.startTime
     );
 
     const { data, xScale, xAccessor, displayXAccessor } =
       xScaleProvider(stockItems);
-
-    // const { data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
-    //   initialData.stockItems
-    // );
 
     const start = xAccessor(last(data));
     const end = xAccessor(data[Math.max(0, data.length - 100)]);
@@ -158,12 +148,12 @@ class MyChart extends React.Component {
         displayXAccessor={displayXAccessor}
         xExtents={xExtents}
       >
-        <Label
-          x={(width - margin.left - margin.right) / 2}
-          y={-10}
-          fontSize="30"
-          text={`TimeFrame: ${timeFrame}`}
-        />
+        {/*<Label*/}
+        {/*  x={(width - margin.left - margin.right) / 2}*/}
+        {/*  y={-10}*/}
+        {/*  fontSize="30"*/}
+        {/*  text={`TimeFrame: ${timeFrame}`}*/}
+        {/*/>*/}
         <Chart
           id={1}
           height={400}
@@ -195,7 +185,8 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            // displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
           />
           <LineSeries
             yAccessor={(stockItems) => stockItems.price}
@@ -263,7 +254,7 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             outerTickSize={0}
             stroke="#000"
             opacity={0.5}
@@ -306,7 +297,7 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             opacity={0.5}
           />
 
@@ -340,7 +331,7 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             opacity={0.5}
           />
           <MouseCoordinateY
