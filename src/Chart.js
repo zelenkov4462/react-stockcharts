@@ -11,6 +11,7 @@ import {
   MouseCoordinateX,
   MouseCoordinateY,
 } from "react-stockcharts/lib/coordinates";
+import algo from "react-stockcharts/lib/algorithm";
 
 import { timeFormat } from "d3-time-format";
 
@@ -18,18 +19,27 @@ import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
 import LineSeries from "react-stockcharts/lib/series/LineSeries";
-import StochasticSeries from "react-stockcharts/lib/series/StochasticSeries";
-import StochasticTooltip from "react-stockcharts/lib/tooltip/StochasticTooltip";
-import rsi from "react-stockcharts/lib/indicator/rsi";
-import OHLCTooltip from "react-stockcharts/lib/tooltip/OHLCTooltip";
-import ToolTipTSpanLabel from "react-stockcharts/lib/tooltip/ToolTipTSpanLabel";
-import ToolTipText from "react-stockcharts/lib/tooltip/ToolTipText";
 import MyOHLCTooltip from "./components/CustumOHLCTooltip";
+import {
+  LabelAnnotation,
+  Label,
+  Annotate,
+  SvgPathAnnotation,
+  buyPath,
+  sellPath,
+} from "react-stockcharts/lib/annotation";
+import AreaSeries from "react-stockcharts/lib/series/AreaSeries";
+import { ema } from "react-stockcharts/lib/indicator";
+import { scaleTime } from "d3-scale";
 
 class MyChart extends React.Component {
   render() {
-    const height = 400;
+    const height = 1050;
     const { type, data: initialData, width, ratio } = this.props;
+
+    const { stockItems } = initialData;
+
+    // const { timeFrame } = this.props;
 
     const margin = { left: 70, right: 70, top: 20, bottom: 30 };
 
@@ -45,21 +55,91 @@ class MyChart extends React.Component {
       : {};
 
     const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
-      (d) => d.time
+      (stockItems) => stockItems.time
     );
+
     const { data, xScale, xAccessor, displayXAccessor } =
-      xScaleProvider(initialData);
+      xScaleProvider(stockItems);
 
     const start = xAccessor(last(data));
     const end = xAccessor(data[Math.max(0, data.length - 100)]);
     const xExtents = [start, end];
+
+    const defaultAnnotationProps = {
+      // fontFamily: "Glyphicons Halflings",
+      // fontSize: 20,
+      // opacity: 0.8,
+      // onClick: console.log.bind(console),
+    };
+
+    const longInAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#006517",
+      path: buyPath,
+      tooltip: "Long In",
+    };
+
+    const longOutAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#006517",
+      path: sellPath,
+      tooltip: "Long Out",
+    };
+
+    const shortInAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#FF0000",
+      path: sellPath,
+      tooltip: "Short In",
+    };
+
+    const shortOutAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#FF0000",
+      path: buyPath,
+      tooltip: "Short Out",
+    };
+
+    const tpDotAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#00008B",
+      path: buyPath,
+      text: "●",
+      fontSize: "25px",
+      tooltip: "Tp Dot",
+    };
+
+    const vuManSellAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#FF0000",
+      path: buyPath,
+      text: "●",
+      fontSize: "25px",
+      tooltip: "Vu man sell",
+    };
+
+    const vuManBuyAnnotationProps = {
+      ...defaultAnnotationProps,
+      y: ({ yScale, datum }) => yScale(datum.price),
+      fill: "#006400",
+      path: buyPath,
+      text: "●",
+      fontSize: "25px",
+      tooltip: "Vu man buy",
+    };
 
     return (
       <ChartCanvas
         height={1200}
         ratio={ratio}
         width={width}
-        margin={{ left: 80, right: 80, top: 50, bottom: 30 }}
+        margin={{ left: 80, right: 80, top: 80, bottom: 30 }}
         type={type}
         seriesName="MSFT"
         data={data}
@@ -68,7 +148,20 @@ class MyChart extends React.Component {
         displayXAccessor={displayXAccessor}
         xExtents={xExtents}
       >
-        <Chart id={1} height={400} yExtents={(d) => d.price}>
+        {/*<Label*/}
+        {/*  x={(width - margin.left - margin.right) / 2}*/}
+        {/*  y={-10}*/}
+        {/*  fontSize="30"*/}
+        {/*  text={`TimeFrame: ${timeFrame}`}*/}
+        {/*/>*/}
+        <Chart
+          id={1}
+          height={400}
+          yExtents={(stockItems) => {
+            // console.log(stockItems);
+            return stockItems.price;
+          }}
+        >
           <YAxis
             axisAt="right"
             orient="right"
@@ -80,7 +173,6 @@ class MyChart extends React.Component {
           <XAxis
             axisAt="bottom"
             orient="bottom"
-            {...xGrid}
             outerTickSize={0}
             stroke="#000"
             opacity={0.5}
@@ -93,22 +185,63 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            // displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
           />
           <LineSeries
-            yAccessor={(d) => d.price}
+            yAccessor={(stockItems) => stockItems.price}
             stroke="#000"
             strokeDasharray="Split"
             strokeWidth={1}
           />
-          {/*<OHLCTooltip origin={[-40, 0]} />*/}
-          <MyOHLCTooltip origin={[-40, -20]} />
+
+          <Annotate
+            with={SvgPathAnnotation}
+            when={(stockItems) => stockItems.long_in}
+            usingProps={longInAnnotationProps}
+          />
+          <Annotate
+            with={SvgPathAnnotation}
+            when={(stockItems) => stockItems.long_out}
+            usingProps={longOutAnnotationProps}
+          />
+          <Annotate
+            with={SvgPathAnnotation}
+            when={(stockItems) => stockItems.short_in}
+            usingProps={shortInAnnotationProps}
+          />
+          <Annotate
+            with={SvgPathAnnotation}
+            when={(stockItems) => stockItems.short_out}
+            usingProps={shortOutAnnotationProps}
+          />
+          <Annotate
+            with={LabelAnnotation}
+            when={(stockItems) => stockItems.tp_dot}
+            usingProps={tpDotAnnotationProps}
+          />
+          <Annotate
+            with={LabelAnnotation}
+            when={(stockItems) => stockItems.vu_man_sell}
+            usingProps={vuManSellAnnotationProps}
+          />
+          <Annotate
+            with={LabelAnnotation}
+            when={(stockItems) => stockItems.vu_man_buy}
+            usingProps={vuManBuyAnnotationProps}
+          />
+
+          <MyOHLCTooltip origin={[-40, -60]} />
         </Chart>
         <Chart
           id={2}
           origin={(w, h) => [0, 450]}
           height={150}
-          yExtents={(d) => [d.rsi, d.mas, d.mal]}
+          yExtents={(stockItems) => [
+            stockItems.rsi,
+            stockItems.mas,
+            stockItems.mal,
+          ]}
         >
           <XAxis axisAt="bottom" orient="bottom" showTicks={false} />
           <YAxis
@@ -121,7 +254,7 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             outerTickSize={0}
             stroke="#000"
             opacity={0.5}
@@ -135,35 +268,36 @@ class MyChart extends React.Component {
           />
 
           <LineSeries
-            yAccessor={(d) => d.rsi}
+            yAccessor={(stockItems) => stockItems.rsi}
             stroke="#008B8B"
             strokeDasharray="line"
           />
           <LineSeries
-            yAccessor={(d) => d.mas}
+            yAccessor={(stockItems) => stockItems.mas}
             stroke="#8B008B"
             strokeDasharray="line"
           />
           <LineSeries
-            yAccessor={(d) => d.mal}
+            yAccessor={(stockItems) => stockItems.mal}
             stroke="#FFFF00"
             strokeDasharray="line"
           />
+
           <MyOHLCTooltip origin={[-40, -20]} />
         </Chart>
         <Chart
           id={3}
           origin={(w, h) => [0, 650]}
           height={150}
-          yExtents={(d) => d.mfi}
+          yExtents={(stockItems) => stockItems.mfi}
         >
-          <XAxis axisAt="bottom" orient="bottom" {...xGrid} showTicks={false} />
+          <XAxis axisAt="bottom" orient="bottom" showTicks={false} />
           <YAxis axisAt="right" orient="right" {...yGrid} ticks={5} />
 
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             opacity={0.5}
           />
 
@@ -173,7 +307,7 @@ class MyChart extends React.Component {
             displayFormat={format(".2f")}
           />
           <LineSeries
-            yAccessor={(d) => d.mfi}
+            yAccessor={(stockItems) => stockItems.mfi}
             stroke="#008000"
             strokeDasharray="Split"
             strokeWidth={1}
@@ -184,7 +318,7 @@ class MyChart extends React.Component {
           id={4}
           origin={(w, h) => [0, 850]}
           height={150}
-          yExtents={(d) => [d.wt1, d.wt2]}
+          yExtents={(stockItems) => [stockItems.wt1, stockItems.wt2]}
         >
           <XAxis axisAt="bottom" orient="bottom" {...xGrid} />
           <YAxis
@@ -197,7 +331,7 @@ class MyChart extends React.Component {
           <MouseCoordinateX
             at="bottom"
             orient="bottom"
-            displayFormat={timeFormat("%Y-%m-%d")}
+            displayFormat={timeFormat("%Y-%m-%d %Hh:%Mm:%Ss")}
             opacity={0.5}
           />
           <MouseCoordinateY
@@ -207,12 +341,12 @@ class MyChart extends React.Component {
           />
 
           <LineSeries
-            yAccessor={(d) => d.wt1}
+            yAccessor={(stockItems) => stockItems.wt1}
             stroke="#FF0000"
             strokeDasharray="line"
           />
           <LineSeries
-            yAccessor={(d) => d.wt2}
+            yAccessor={(stockItems) => stockItems.wt2}
             stroke="#006400"
             strokeDasharray="line"
           />
