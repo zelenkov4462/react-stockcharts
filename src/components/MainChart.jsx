@@ -1,11 +1,12 @@
 import { convertData } from "../utils";
 import { TypeChooser } from "react-stockcharts/lib/helper";
 import Chart from "../Chart";
-import React, { Component } from "react";
+import React, { Component, useContext } from "react";
+import { SimulationValueContext } from "../App";
 
 class MainChart extends Component {
   render() {
-    const { stoksDataObj } = this.props;
+    const { stoksDataObj, simulationValue } = this.props;
 
     const timeFrame = stoksDataObj.timeframe;
 
@@ -20,6 +21,9 @@ class MainChart extends Component {
         <h1 style={{ display: "flex", justifyContent: "center" }}>
           TimeFrame: {timeFrame}
         </h1>
+        <h2 style={{ display: "flex", justifyContent: "center" }}>
+          Номер симуляции: {simulationValue}
+        </h2>
         <TypeChooser>
           {(type) => (
             <Chart type={type} data={stockData} timeFrame={timeFrame} />
