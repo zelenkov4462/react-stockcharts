@@ -6,7 +6,6 @@ const InputTimeFrame = ({ selectedOption, setSelectedOption }) => {
   const [options, setOptions] = useState(null);
   const [error, setError] = useState(false);
   const value = useContext(SimulationValueContext);
-  console.log(value);
   const onSelectedValueChange = (e) => {
     setSelectedOption(
       options.find((option) => option.timeframe === e.target.value)
@@ -19,7 +18,8 @@ const InputTimeFrame = ({ selectedOption, setSelectedOption }) => {
         setError(false);
         const responseOptions = await axios.get(
           // "https://chart-template.herokuapp.com/simulation/123456"
-          `https://chart-template.herokuapp.com/simulation/${value}`
+          // `https://chart-template.herokuapp.com/simulation/${value}`
+          `http://159.223.232.224:8084/simulation/nearusdt_1662526924`
         );
         if (responseOptions.status === 200) {
           const options = responseOptions.data.data.slice(0, 5);
@@ -61,11 +61,17 @@ const InputTimeFrame = ({ selectedOption, setSelectedOption }) => {
   // }, [value]);
 
   if (error) {
-    return <h1>Номер симулятора неверен. Введите заново.</h1>;
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>
+        Номер симулятора неверен. Введите заново.
+      </h1>
+    );
   }
 
   if (!options) {
-    return <h1>Loading...</h1>;
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>Loading...</h1>
+    );
   }
   if (!options.length) {
     return <h1>Array DataCharts is empty. Please try again later.</h1>;

@@ -5,12 +5,13 @@ import MainPage from "./components/MainPage";
 export const SimulationValueContext = createContext();
 
 const App = () => {
-  const [simulationValue, setSimulationValue] = useState("");
+  const [simulationValue, setSimulationValue] = useState("1662526924");
   const [value, setValue] = useState("");
   const handleSubmit = (e) => {
     e.preventDefault();
     setValue(simulationValue);
     setSimulationValue("");
+    console.log(value);
   };
   return (
     <div style={{ width: "100%" }}>
@@ -41,7 +42,7 @@ const App = () => {
             paddingTop: "5px",
           }}
         >
-          Введите номер симулятора
+          <h1>Введите номер симулятора</h1>
         </div>
       ) : (
         <SimulationValueContext.Provider value={value}>

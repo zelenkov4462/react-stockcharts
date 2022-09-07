@@ -2,7 +2,6 @@ import { convertData } from "../utils";
 import { TypeChooser } from "react-stockcharts/lib/helper";
 import Chart from "../Chart";
 import React, { Component, useContext } from "react";
-import { SimulationValueContext } from "../App";
 
 class MainChart extends Component {
   render() {

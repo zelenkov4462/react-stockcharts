@@ -14,7 +14,7 @@ const MainPage = () => {
         selectedOption={selectedOption}
         setSelectedOption={setSelectedOption}
       />
-      {selectedOption === null ? null : ( // <div>Loading charts...</div>
+      {selectedOption === null ? null : (
         <MainChart
           simulationValue={simulationValue}
           stoksDataObj={selectedOption}
