@@ -1,60 +1,61 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import MainChart from "./MainChart";
-import axios from "axios";
+import { useSimulation } from "./Context/SimulationNameAndValue/SimulationContext";
+import InputTimeFrame from "./InputTimeFrame/InputTimeFrame";
+import { useData } from "./Context/GetData/DataContext";
 
 const MainPage = () => {
-  const [options, setOptions] = useState(null);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const {
+    options,
+    setOption,
+    selectedOption,
+    setSelectedOption,
+    dataSim: { nameSim, valueSim },
+    error,
+    statistics,
+  } = useData();
 
-  const onSelectedValueChange = (e) => {
-    setSelectedOption(
-      options.find((option) => option.timeframe === e.target.value)
+  if (!nameSim || !valueSim) {
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>
+        Введите данные
+      </h1>
     );
-  };
-
-  useEffect(() => {
-    const getOptions = async () => {
-      const responseOptions = await axios.get(
-        "https://chart-template.herokuapp.com/simulation/123456"
-      );
-
-      console.log(responseOptions);
-
-      const options = responseOptions.data.data.slice(0, 5);
-
-      setOptions(options);
-      setSelectedOption(options[0]);
-      console.log(options);
-    };
-
-    getOptions();
-  }, []);
+  }
+  if (error) {
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>
+        Неккоректные данные для симуляции. Введите заново
+      </h1>
+    );
+  }
 
   if (!options) {
-    return <h1>Loading...</h1>;
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>Loading...</h1>
+    );
   }
   if (!options.length) {
-    return <h1>Array DataCharts is empty. Please try again later.</h1>;
+    return (
+      <h1 style={{ display: "flex", justifyContent: "center" }}>
+        Array DataCharts is empty. Please try again later.
+      </h1>
+    );
   }
+
+  console.log(statistics);
   return (
     <div>
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
-        <select
-          value={selectedOption.timeframe}
-          onChange={onSelectedValueChange}
-          name="select"
-          className="MainPage-select"
-        >
-          {options.map((option, index) => (
-            <option key={index} value={option.timeframe}>
-              {option.timeframe}
-            </option>
-          ))}
-        </select>
-      </div>
-      <MainChart stoksDataObj={selectedOption} />
+      <p>result: {statistics.result}</p>
+      <p>commission_sum: {statistics.commission_sum}</p>
+      <p>low_amount: {statistics.low_amount}</p>
+      <p>profit_factor: {statistics.profit_factor}</p>
+      <p>short_sum: {statistics.short_sum}</p>
+      <InputTimeFrame />
+      <MainChart
+        dataSim={{ nameSim, valueSim }}
+        stoksDataObj={selectedOption}
+      />
     </div>
   );
 };
