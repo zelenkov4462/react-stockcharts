@@ -16,20 +16,22 @@ export const DataProvider = ({ children }) => {
   const [statistics, setStatistics] = useState(null);
 
   useEffect(() => {
-    const { nameSim, valueSim } = dataSim;
+    const { nameSim, valueSim, valueTimeFrame } = dataSim;
     const getOptions = async () => {
       try {
         setError(false);
         const responseOptions = await axios.get(
           // "http://159.223.232.224:8084/simulation/nearusdt_1662526924"
-          `http://159.223.232.224:8084/simulation/${nameSim}_${valueSim}`
+          // `http://159.223.232.224:8084/simulation/${nameSim}_${valueSim}`
+          `http://159.223.232.224:8084/simulation/${nameSim}_${valueSim}?graph=${valueTimeFrame}`
         );
         if (responseOptions.status === 200) {
           const options = responseOptions.data.data;
           setOptions(options);
           setSelectedOption(options[0]);
           setError(false);
-          console.log(error);
+          console.log(options);
+          console.log(selectedOption);
         } else {
           throw "Некорректная симуляция";
         }

@@ -9,7 +9,7 @@ export const useSimulation = () => {
 export const SimulationProvider = ({ children }) => {
   const [nameSim, setNameSim] = useState("nearusdt");
   const [valueSim, setValueSim] = useState("1662526924");
-  // const [dataSim, setDataSim] = useState(null);
+  const [valueTimeFrame, setValueTimeFrame] = useState("WTF");
 
   return (
     <SimulationContext.Provider
@@ -18,8 +18,8 @@ export const SimulationProvider = ({ children }) => {
         setNameSim,
         valueSim,
         setValueSim,
-        // dataSim,
-        // setDataSim,
+        valueTimeFrame,
+        setValueTimeFrame,
       }}
     >
       {children}
